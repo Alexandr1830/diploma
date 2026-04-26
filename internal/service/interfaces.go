@@ -23,6 +23,7 @@ type DocumentService interface {
 	Delete(ctx context.Context, id, userID int64, role string) error
 	Publish(ctx context.Context, id, userID int64, role string) (*models.Document, error)
 	Unpublish(ctx context.Context, id, userID int64, role string) (*models.Document, error)
+	Archive(ctx context.Context, id, userID int64, role string) (*models.Document, error)
 }
 
 // VersionService — загрузка версий документа и работа с ними.
