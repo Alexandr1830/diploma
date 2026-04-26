@@ -1,13 +1,17 @@
 package main
 
 import (
+	"context"
 	"log"
+	"log/slog"
 	"os"
 	"time"
 
 	"github.com/joho/godotenv"
 
 	"diploma/internal/handler"
+	"diploma/internal/middleware"
+	"diploma/internal/observability"
 	"diploma/internal/parser"
 	"diploma/internal/repository"
 	"diploma/internal/service"
@@ -23,6 +27,13 @@ func main() {
 		log.Fatal("JWT_SECRET environment variable is required")
 	}
 
+	// OpenTelemetry: трейсы, метрики и логи уезжают в OTLP-коллектор
+	// (grafana/otel-lgtm). Если коллектор недоступен — Setup всё равно
+	// вернёт работающий no-op.
+	shutdownObs := observability.MustSetup("diploma-api")
+	defer func() { _ = shutdownObs(context.Background()) }()
+	middleware.InitMetrics()
+
 	dbCfg := database.NewConfig()
 	db, err := database.Connect(dbCfg)
 	if err != nil {
@@ -30,7 +41,13 @@ func main() {
 	}
 	defer db.Close()
 
-	log.Printf("connected to database %s@%s:%s/%s", dbCfg.User, dbCfg.Host, dbCfg.Port, dbCfg.DBName)
+	// Логи через slog уезжают и в stdout, и в OTLP (Loki).
+	slog.Info("connected to database",
+		"user", dbCfg.User,
+		"host", dbCfg.Host,
+		"port", dbCfg.Port,
+		"db", dbCfg.DBName,
+	)
 
 	userRepo := repository.NewUserRepository(db)
 	docRepo := repository.NewDocumentRepository(db)
@@ -78,7 +95,7 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	log.Printf("starting server on :%s", port)
+	slog.Info("starting server", "port", port)
 	if err := r.Run(":" + port); err != nil {
 		log.Fatalf("server error: %v", err)
 	}
