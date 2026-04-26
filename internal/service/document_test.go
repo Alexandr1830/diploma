@@ -1,10 +1,13 @@
 package service
 
 import (
+	"context"
 	"database/sql"
+	"errors"
 	"testing"
 
 	"diploma/internal/models"
+	"diploma/internal/repository"
 )
 
 // newDoc собирает документ для теста: статус, владелец, опционально ревьюер.
@@ -102,6 +105,97 @@ func TestCanWrite(t *testing.T) {
 				t.Errorf("canWrite=%v, want %v", got, tc.want)
 			}
 		})
+	}
+}
+
+// archiveDocRepo — минимальный мок DocumentRepository для тестов Archive.
+// Встраиваем интерфейс — методы, которые тест не использует, паникнут при
+// случайном вызове, что и нужно: тест должен задействовать только GetByID
+// и UpdateStatus.
+type archiveDocRepo struct {
+	repository.DocumentRepository
+	doc           *models.Document
+	updatedStatus models.DocumentStatus
+}
+
+func (r *archiveDocRepo) GetByID(_ context.Context, _ int64) (*models.Document, error) {
+	if r.doc == nil {
+		return nil, sql.ErrNoRows
+	}
+	cp := *r.doc
+	return &cp, nil
+}
+
+func (r *archiveDocRepo) UpdateStatus(_ context.Context, _ int64, status models.DocumentStatus) error {
+	r.updatedStatus = status
+	return nil
+}
+
+func TestArchive_AdminCanArchiveDraft(t *testing.T) {
+	repo := &archiveDocRepo{doc: newDoc(models.StatusDraft, 10, 0)}
+	svc := NewDocumentService(repo)
+
+	doc, err := svc.Archive(context.Background(), 1, 99, string(models.RoleAdmin))
+	if err != nil {
+		t.Fatalf("Archive: %v", err)
+	}
+	if doc.Status != models.StatusArchived {
+		t.Errorf("doc.Status=%s, want archived", doc.Status)
+	}
+	if repo.updatedStatus != models.StatusArchived {
+		t.Errorf("UpdateStatus вызван с %s, want archived", repo.updatedStatus)
+	}
+}
+
+func TestArchive_OwnerWriterCanArchive(t *testing.T) {
+	repo := &archiveDocRepo{doc: newDoc(models.StatusInReview, 10, 20)}
+	svc := NewDocumentService(repo)
+
+	if _, err := svc.Archive(context.Background(), 1, 10, string(models.RoleWriter)); err != nil {
+		t.Errorf("ownership проверка должна пропустить владельца: %v", err)
+	}
+}
+
+func TestArchive_StrangerWriterForbidden(t *testing.T) {
+	repo := &archiveDocRepo{doc: newDoc(models.StatusInReview, 10, 20)}
+	svc := NewDocumentService(repo)
+
+	_, err := svc.Archive(context.Background(), 1, 11, string(models.RoleWriter))
+	if !errors.Is(err, ErrForbidden) {
+		t.Errorf("чужой writer должен получить ErrForbidden, получили %v", err)
+	}
+}
+
+func TestArchive_PublishedRequiresUnpublishFirst(t *testing.T) {
+	repo := &archiveDocRepo{doc: newDoc(models.StatusPublished, 10, 0)}
+	svc := NewDocumentService(repo)
+
+	_, err := svc.Archive(context.Background(), 1, 99, string(models.RoleAdmin))
+	if !errors.Is(err, ErrNotPublished) {
+		t.Errorf("опубликованный документ должен требовать сначала Unpublish, получили %v", err)
+	}
+}
+
+func TestArchive_AlreadyArchivedIsIdempotent(t *testing.T) {
+	repo := &archiveDocRepo{doc: newDoc(models.StatusArchived, 10, 0)}
+	svc := NewDocumentService(repo)
+
+	doc, err := svc.Archive(context.Background(), 1, 99, string(models.RoleAdmin))
+	if err != nil {
+		t.Errorf("повторный архив не должен возвращать ошибку: %v", err)
+	}
+	if doc.Status != models.StatusArchived {
+		t.Errorf("статус должен остаться archived, got %s", doc.Status)
+	}
+}
+
+func TestArchive_NotFound(t *testing.T) {
+	repo := &archiveDocRepo{doc: nil}
+	svc := NewDocumentService(repo)
+
+	_, err := svc.Archive(context.Background(), 999, 99, string(models.RoleAdmin))
+	if !errors.Is(err, ErrDocumentNotFound) {
+		t.Errorf("несуществующий документ должен дать ErrDocumentNotFound, получили %v", err)
 	}
 }
 
