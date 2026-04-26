@@ -263,6 +263,38 @@ func (s *documentService) Unpublish(ctx context.Context, id, userID int64, role 
 	return doc, nil
 }
 
+// Archive переводит документ в статус archived. Доступно admin'у и
+// writer-владельцу. Идемпотентно: повторный вызов на уже архивированном
+// документе возвращает его как есть, без ошибки. Опубликованный документ
+// сначала надо снять с публикации (Unpublish) — это явное двухшаговое
+// действие, чтобы admin случайно одним кликом не «сжёг» опубликованное.
+func (s *documentService) Archive(ctx context.Context, id, userID int64, role string) (*models.Document, error) {
+	doc, err := s.docs.GetByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrDocumentNotFound
+		}
+		return nil, fmt.Errorf("documentService.Archive: fetch: %w", err)
+	}
+
+	if !canWrite(doc, userID, models.UserRole(role)) {
+		return nil, ErrForbidden
+	}
+
+	if doc.Status == models.StatusArchived {
+		return doc, nil
+	}
+	if doc.Status == models.StatusPublished {
+		return nil, ErrNotPublished
+	}
+
+	if err := s.docs.UpdateStatus(ctx, id, models.StatusArchived); err != nil {
+		return nil, fmt.Errorf("documentService.Archive: %w", err)
+	}
+	doc.Status = models.StatusArchived
+	return doc, nil
+}
+
 // ---------------------------------------------------------------------------
 // access-control helpers
 // ---------------------------------------------------------------------------

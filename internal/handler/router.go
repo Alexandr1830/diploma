@@ -367,9 +367,24 @@ func (h *DocumentHandler) Unpublish(c *gin.Context) {
 	c.JSON(http.StatusOK, doc)
 }
 
-// Archive пока не реализован — оставлено как точка расширения.
+// Archive — POST /documents/:id/archive. Переводит документ в статус
+// archived. Доступно admin'у или автору, опубликованный документ нужно
+// сначала снять с публикации.
 func (h *DocumentHandler) Archive(c *gin.Context) {
-	c.JSON(http.StatusNotImplemented, gin.H{"message": "not implemented"})
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+	userID := c.GetInt64(middleware.ContextUserID)
+	role := c.GetString(middleware.ContextUserRole)
+
+	doc, err := h.svc.Archive(c.Request.Context(), id, userID, role)
+	if err != nil {
+		handleDocError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, doc)
 }
 
 func handleDocError(c *gin.Context, err error) {
