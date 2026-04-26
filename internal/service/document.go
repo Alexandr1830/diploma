@@ -66,10 +66,10 @@ func (s *documentService) Create(ctx context.Context, req models.CreateDocumentR
 
 // List returns documents visible to the caller based on their role.
 //
-//   writer    — собственные документы (любой статус, включая draft)
-//   reviewer  — назначенные на него
-//   admin     — всё
-//   остальные — пусто
+//	writer    — собственные документы (любой статус, включая draft)
+//	reviewer  — назначенные на него
+//	admin     — всё
+//	остальные — пусто
 //
 // Дополнительно: черновик (status=draft) виден ТОЛЬКО его автору
 // (created_by). Даже admin не видит чужой draft в списке.

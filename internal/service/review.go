@@ -81,7 +81,7 @@ func (s *reviewService) Submit(ctx context.Context, docID, userID int64, role st
 	}
 
 	r := models.UserRole(role)
-	if r != models.RoleAdmin && !(r == models.RoleWriter && doc.CreatedBy == userID) {
+	if !(r == models.RoleAdmin || (r == models.RoleWriter && doc.CreatedBy == userID)) {
 		return nil, ErrForbidden
 	}
 

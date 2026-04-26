@@ -188,7 +188,6 @@ func (r *documentRepo) List(ctx context.Context, f DocumentFilters) ([]models.Do
 	if f.ReviewerID != nil {
 		q += fmt.Sprintf(" AND reviewer_id=$%d", i)
 		args = append(args, *f.ReviewerID)
-		i++
 	}
 	q += " ORDER BY created_at DESC"
 	list := []models.Document{}
