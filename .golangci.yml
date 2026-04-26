@@ -15,8 +15,6 @@ linters:
 
   settings:
     errcheck:
-      # Не ругаться на defer Close() — это стандартный паттерн в Go,
-      # ошибка при закрытии файла/курсора почти всегда не actionable.
       exclude-functions:
         - (io.Closer).Close
         - (*os.File).Close
@@ -24,25 +22,27 @@ linters:
         - (*database/sql.DB).Close
         - (*archive/zip.ReadCloser).Close
     staticcheck:
-      # QF* — это quick-fix-предложения по стилю (типа «примените законы
-      # де Моргана»), не настоящие баги. Отключаем, чтобы линтер не цеплялся
-      # к читаемым условиям.
       checks:
         - all
-        - -QF1001  # законы де Моргана — стилистика, не бага
-        - -QF1003  # switch вместо if — стилистика
-        - -QF1008  # лишние имена в селекторах — стилистика
-        - -ST1000  # требование package comment — для библиотек, не для внутренних пакетов
+        - -QF1001
+        - -QF1003
+        - -QF1008
+        - -ST1000
+
+  exclusions:
+    paths:
+      - frontend
+      - migrations
 
 formatters:
   enable:
     - gofmt
 
+  exclusions:
+    paths:
+      - frontend
+      - migrations
+
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
-
-exclude:
-  paths:
-    - frontend
-    - migrations
