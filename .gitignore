@@ -55,12 +55,8 @@ openapi.yaml
 *.zip
 *.tar.gz
 
-# Тестовые скрипты и данные
-test/
-tests/
-testdata/
+# Frontend тестовые фреймворки (не используются)
 __tests__/
-*_test.go
 *.test.js
 *.test.jsx
 *.spec.js
