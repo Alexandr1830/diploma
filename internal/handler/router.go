@@ -3,9 +3,12 @@ package handler
 import (
 	"errors"
 	"net/http"
+	"os"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 
 	"diploma/internal/middleware"
 	"diploma/internal/models"
@@ -33,6 +36,12 @@ func NewRouter(
 ) *gin.Engine {
 	r := gin.Default()
 
+	// Observability: трейсинг каждого запроса через OpenTelemetry и
+	// сбор Prometheus-метрик. Подключаем рано в цепочке, чтобы поймать
+	// все запросы независимо от auth-результата.
+	r.Use(otelgin.Middleware("diploma-api"))
+	r.Use(middleware.Metrics())
+
 	// CORS открыт настежь — фронт-дев запускается с другого порта (vite на
 	// 5173, api на 8080). В проде, где они под одним доменом за реверс-прокси,
 	// это можно убрать.
@@ -48,6 +57,21 @@ func NewRouter(
 	})
 
 	r.GET("/health", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"status": "ok"}) })
+
+	// /instance — отдаёт идентификацию текущего инстанса. Удобно при запуске
+	// нескольких реплик (docker-compose с двумя api или k8s deployment с
+	// replicas > 1) — каждый ответит своими значениями. INSTANCE_ID берётся
+	// из env, hostname = имя контейнера / pod-а.
+	r.GET("/instance", func(c *gin.Context) {
+		hostname, _ := os.Hostname()
+		c.JSON(http.StatusOK, gin.H{
+			"instance_id": os.Getenv("INSTANCE_ID"),
+			"hostname":    hostname,
+			"port":        os.Getenv("APP_PORT"),
+			"db_host":     os.Getenv("DB_HOST"),
+			"time":        time.Now().Format(time.RFC3339),
+		})
+	})
 
 	api := r.Group("/api/v1")
 
