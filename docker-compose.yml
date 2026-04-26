@@ -1,0 +1,69 @@
+services:
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL
+  # При первом запуске (пустой volume) postgres автоматически выполняет все
+  # SQL-файлы из /docker-entrypoint-initdb.d/ — так применяется миграция.
+  # При повторных запусках init-скрипты игнорируются (данные уже есть).
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: diploma_postgres
+    environment:
+      POSTGRES_USER:     ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      POSTGRES_DB:       ${DB_NAME:-diploma}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations/001_init_schema.sql:/docker-entrypoint-initdb.d/01_init_schema.sql:ro
+      - ./migrations/002_add_has_images.sql:/docker-entrypoint-initdb.d/02_add_has_images.sql:ro
+      - ./migrations/003_add_must_change_password.sql:/docker-entrypoint-initdb.d/03_add_must_change_password.sql:ro
+      - ./migrations/004_bootstrap_admin.sql:/docker-entrypoint-initdb.d/04_bootstrap_admin.sql:ro
+      - ./migrations/005_library_threads.sql:/docker-entrypoint-initdb.d/05_library_threads.sql:ro
+      - ./migrations/006_rule_sets.sql:/docker-entrypoint-initdb.d/06_rule_sets.sql:ro
+    ports:
+      - "${DB_EXPOSE_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-diploma}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Go API
+  # Стартует только после того, как postgres прошёл healthcheck.
+  # DB_HOST=postgres — внутри сети compose сервисы доступны по имени.
+  # ---------------------------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: diploma_api
+    environment:
+      APP_PORT:   ${APP_PORT:-8080}
+      DB_HOST:    postgres          # имя сервиса внутри compose-сети
+      DB_PORT:    5432
+      DB_USER:    ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      DB_NAME:    ${DB_NAME:-diploma}
+      DB_SSLMODE: disable
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    volumes:
+      # Не :ro — preview-конвертер (libreoffice) пишет рядом с docx-файлом
+      # рендерённый <basename>.preview.pdf для inline-просмотра в iframe.
+      - ./files:/files
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+# ---------------------------------------------------------------------------
+# Именованный volume — данные PostgreSQL переживают docker compose down
+# Для сброса БД: docker compose down -v
+# ---------------------------------------------------------------------------
+volumes:
+  postgres_data:

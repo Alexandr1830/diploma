@@ -1,0 +1,28 @@
+# Version control
+.git/
+.gitignore
+
+# Documentation & assets (не нужны в образе)
+*.md
+*.rtf
+*.png
+*.txt
+mnt/
+test
+test1
+diploma.rtf
+
+# SQL-файлы не нужны внутри API-контейнера —
+# миграции применяются через postgres init-скрипт
+migrations/
+001_init_schema.sql
+
+# Секреты — никогда не копировать в образ
+.env
+.env.local
+.env.production
+
+# Docker-файлы сами себя
+Dockerfile
+.dockerignore
+docker-compose*.yml
