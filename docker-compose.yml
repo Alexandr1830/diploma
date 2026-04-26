@@ -32,7 +32,20 @@ services:
     restart: unless-stopped
 
   # ---------------------------------------------------------------------------
-  # Go API
+  # Observability — all-in-one стек Grafana (Grafana + Tempo + Loki + Prometheus
+  # + OpenTelemetry Collector в одном контейнере). Принимает OTLP HTTP на
+  # :4318 и отдаёт UI Grafana на :3000
+  # ---------------------------------------------------------------------------
+  observability:
+    image: grafana/otel-lgtm:latest
+    container_name: diploma_lgtm
+    ports:
+      - "3000:3000"   # Grafana UI
+      - "4318:4318"   # OTLP HTTP receiver (трейсы и логи от api)
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Go API — инстанс 1
   # Стартует только после того, как postgres прошёл healthcheck.
   # DB_HOST=postgres — внутри сети compose сервисы доступны по имени.
   # ---------------------------------------------------------------------------
@@ -42,20 +55,55 @@ services:
       dockerfile: Dockerfile
     container_name: diploma_api
     environment:
+      INSTANCE_ID: "1"              # см. handler GET /instance
       APP_PORT:   ${APP_PORT:-8080}
-      DB_HOST:    postgres          # имя сервиса внутри compose-сети
+      DB_HOST:    postgres
       DB_PORT:    5432
       DB_USER:    ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
       DB_NAME:    ${DB_NAME:-diploma}
       DB_SSLMODE: disable
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://observability:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_SERVICE_NAME: diploma-api
     volumes:
-      # Не :ro — preview-конвертер (libreoffice) пишет рядом с docx-файлом
-      # рендерённый <basename>.preview.pdf для inline-просмотра в iframe.
       - ./files:/files
     ports:
       - "${APP_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Go API — инстанс 2 (тот же код, тот же образ, но отличается INSTANCE_ID
+  # и портом снаружи). Демонстрация концепции «локальные кластеры»: один
+  # backend, несколько реплик с разной конфигурацией через env-переменные.
+  # Использует ту же БД, что и api инстанс 1.
+  # ---------------------------------------------------------------------------
+  api2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: diploma_api2
+    environment:
+      INSTANCE_ID: "2"
+      APP_PORT:   "8080"
+      DB_HOST:    postgres
+      DB_PORT:    5432
+      DB_USER:    ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      DB_NAME:    ${DB_NAME:-diploma}
+      DB_SSLMODE: disable
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://observability:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_SERVICE_NAME: diploma-api
+    volumes:
+      - ./files:/files
+    ports:
+      - "8081:8080"
     depends_on:
       postgres:
         condition: service_healthy
