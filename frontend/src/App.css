@@ -1,0 +1,699 @@
+/* ======= Reset & Base ======= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f5f6f8;
+  --surface: #fff;
+  --border: #e0e3e8;
+  --text: #1a1d23;
+  --text-secondary: #6b7280;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --danger: #dc2626;
+  --success: #16a34a;
+  --warning: #f59e0b;
+  --radius: 8px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* ======= Utility ======= */
+.loading-screen, .error-screen {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; font-size: 1.1rem; color: var(--text-secondary);
+}
+
+.empty-state {
+  padding: 2rem; text-align: center; color: var(--text-secondary); font-size: 0.95rem;
+}
+
+.error-banner {
+  background: #fef2f2; border: 1px solid #fecaca; color: var(--danger);
+  padding: 0.5rem 0.75rem; border-radius: var(--radius); margin-bottom: 0.75rem; font-size: 0.875rem;
+}
+
+/* ======= UI primitives (Label + SelectNative) =======
+   Используются всеми селекторами в проекте. Вид имитирует shadcn/ui native
+   select — белый фон, прозрачная рамка (становится primary при focus),
+   шеврон справа. Без Tailwind, без зависимостей. */
+.ui-label {
+  display: block; font-size: 0.825rem; font-weight: 500;
+  color: var(--text); margin-bottom: 0.35rem;
+}
+.select-native {
+  display: block; width: 100%;
+  padding: 0.5rem 2.25rem 0.5rem 0.75rem;
+  font-size: 0.875rem; font-family: inherit; color: var(--text);
+  background-color: #fff;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 20 20' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='5 8 10 13 15 8'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 14px 14px;
+  border: 1px solid transparent; border-radius: var(--radius);
+  outline: none; cursor: pointer;
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  transition: background-color 0.12s, border-color 0.12s, box-shadow 0.12s;
+}
+.select-native:hover:not(:disabled) { background-color: #f9fafb; }
+.select-native:focus-visible {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+.select-native:disabled { opacity: 0.55; cursor: not-allowed; }
+/* form-field — стек «Label + SelectNative + hint». Раньше в формах был
+   <label>...<select>...</label>, теперь Label рядом с SelectNative требует
+   обёртки. Класс задаёт нижний отступ — единый шаг между полями формы. */
+.form-field { margin-bottom: 1rem; }
+.form-field .hint {
+  display: block; margin-top: 0.3rem;
+  font-size: 0.75rem; color: var(--text-secondary); font-weight: normal;
+}
+
+/* ======= Buttons ======= */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  padding: 0.5rem 1rem; border: none; border-radius: var(--radius);
+  font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: background 0.15s;
+}
+.btn:disabled { opacity: 0.5; cursor: default; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+.btn-secondary { background: var(--border); color: var(--text); }
+.btn-secondary:hover:not(:disabled) { background: #d1d5db; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover:not(:disabled) { background: #b91c1c; }
+.btn-sm { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+
+/* ======= Badge ======= */
+.badge {
+  display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px;
+  font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+}
+.status-draft { background: #e5e7eb; color: #374151; }
+.status-in_review { background: #dbeafe; color: #1e40af; }
+.status-needs_revision { background: #fef3c7; color: #92400e; }
+.status-approved { background: #d1fae5; color: #065f46; }
+.status-published { background: #ede9fe; color: #5b21b6; }
+.status-archived { background: #f3f4f6; color: #6b7280; }
+
+/* ======= Login ======= */
+.login-page {
+  display: flex; align-items: center; justify-content: center; min-height: 100vh;
+}
+.login-form {
+  background: var(--surface); padding: 2rem; border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1); width: 100%; max-width: 380px;
+}
+.login-form h1 { margin-bottom: 0.25rem; }
+.login-form .subtitle { color: var(--text-secondary); margin-bottom: 1.25rem; }
+.login-form label {
+  display: block; margin-bottom: 0.75rem; font-size: 0.875rem; font-weight: 500;
+}
+.login-form input,
+.login-form select {
+  display: block; width: 100%; margin-top: 0.25rem; padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.9rem;
+  background: white;
+}
+.login-form button.btn-login {
+  width: 100%; margin-top: 1rem;
+  padding: 0.75rem 1rem; font-size: 0.95rem; font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #fff; border: none; border-radius: 10px; cursor: pointer;
+  background: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  transition: transform 0.12s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+.login-form button.btn-login:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35);
+  filter: brightness(1.05);
+}
+.login-form button.btn-login:active:not(:disabled) {
+  transform: translateY(0); box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3);
+}
+.login-form button.btn-login:disabled {
+  opacity: 0.7; cursor: not-allowed;
+  background: linear-gradient(135deg, #818cf8 0%, #93c5fd 100%);
+  box-shadow: none;
+}
+.login-form .form-footer {
+  margin-top: 1rem; text-align: center; font-size: 0.875rem; color: var(--text-secondary);
+}
+.login-form .form-footer a { color: var(--primary); text-decoration: none; }
+.login-form .form-footer a:hover { text-decoration: underline; }
+
+/* ======= Document Page ======= */
+.document-page { max-width: 1280px; margin: 0 auto; padding: 1.5rem; }
+
+/* Header */
+.doc-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  background: var(--surface); padding: 1.25rem 1.5rem; border-radius: var(--radius);
+  border: 1px solid var(--border); margin-bottom: 1rem;
+}
+.doc-header h1 { font-size: 1.35rem; margin-bottom: 0.25rem; }
+.doc-header-title-row { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.doc-header-title-row h1 { margin-bottom: 0; }
+
+/* Сетка «label — value» в шапке документа. dl-разметка читабельнее, чем
+   плоский ряд .meta-item, и легко расширяется при добавлении полей. */
+.doc-meta-grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 1rem; row-gap: 0.4rem;
+  margin-top: 0.6rem; font-size: 0.875rem;
+}
+.doc-meta-row { display: contents; }
+.doc-meta-row dt {
+  color: var(--text-secondary); font-weight: 500;
+}
+.doc-meta-row dd {
+  color: var(--text); margin: 0;
+}
+.doc-desc { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem; }
+.doc-meta { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+.meta-item { font-size: 0.825rem; color: var(--text-secondary); }
+.doc-header-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+
+/* Two-column */
+.two-col { display: grid; grid-template-columns: 1fr 400px; gap: 1rem; }
+@media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+/* Left: version */
+.col-left {}
+.version-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.25rem;
+}
+.version-card h3 { margin-bottom: 0.75rem; font-size: 1rem; }
+.info-table { width: 100%; font-size: 0.875rem; }
+.info-table td { padding: 0.3rem 0.5rem; }
+.info-table td:first-child { color: var(--text-secondary); width: 100px; }
+.pdf-placeholder {
+  margin-top: 1rem; padding: 4rem 1rem; text-align: center;
+  background: #f9fafb; border: 2px dashed var(--border); border-radius: var(--radius);
+  color: var(--text-secondary); font-size: 0.9rem;
+}
+.pdf-viewer {
+  margin-top: 1rem; width: 100%; height: 500px; border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* Right: discussions */
+.col-right {
+  display: flex; flex-direction: column; gap: 0.75rem;
+  max-height: calc(100vh - 180px); overflow: hidden;
+}
+
+/* Thread list */
+.thread-list {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow-y: auto; max-height: 280px;
+}
+.thread-list h3 {
+  padding: 0.75rem 1rem; font-size: 0.9rem; border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; background: var(--surface);
+}
+.thread-item {
+  padding: 0.6rem 1rem; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background 0.1s;
+}
+.thread-item:last-child { border-bottom: none; }
+.thread-item:hover { background: #f9fafb; }
+.thread-item.selected { background: #eff6ff; border-left: 3px solid var(--primary); }
+.thread-item.resolved { opacity: 0.65; }
+.thread-item.unread {
+  background: #fffbeb; border-left: 3px solid var(--warning);
+  animation: unreadPulse 2s ease-in-out 1;
+}
+.thread-item.unread.selected { background: #eff6ff; }
+@keyframes unreadPulse {
+  0% { background: #fef3c7; }
+  100% { background: #fffbeb; }
+}
+.thread-unread-badge {
+  margin-left: auto; font-size: 0.7rem; padding: 0.1rem 0.4rem;
+  background: var(--warning); color: #fff; border-radius: 3px; font-weight: 600;
+  text-transform: uppercase;
+}
+.thread-item-top { display: flex; justify-content: space-between; margin-bottom: 0.25rem; }
+.thread-type { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+.thread-type.anchored { color: var(--warning); }
+.thread-type.general { color: var(--primary); }
+.thread-status { font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 3px; }
+.thread-status.open { background: #d1fae5; color: #065f46; }
+.thread-status.resolved { background: #e5e7eb; color: #6b7280; }
+.thread-anchor { font-size: 0.75rem; color: var(--warning); margin-bottom: 0.2rem; word-break: break-all; }
+.thread-preview { font-size: 0.8rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.thread-preview.empty { font-style: italic; }
+.thread-item-bottom {
+  display: flex; justify-content: space-between; font-size: 0.7rem;
+  color: var(--text-secondary); margin-top: 0.3rem;
+}
+
+/* Thread messages — у блока есть максимальная высота, после которой
+   .messages-list внутри начинает скроллиться (как в мессенджерах). Сама
+   страница вниз не уезжает, и поле ввода всегда остаётся в видимой части. */
+.thread-messages {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); display: flex; flex-direction: column;
+  flex: 1; min-height: 0; max-height: 60vh; overflow: hidden;
+}
+.thread-messages-header {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.6rem 1rem; border-bottom: 1px solid var(--border);
+}
+.thread-anchor-detail {
+  padding: 0.3rem 1rem; font-size: 0.75rem; color: var(--warning);
+  background: #fffbeb; border-bottom: 1px solid var(--border);
+}
+.messages-list {
+  flex: 1; overflow-y: auto; padding: 0.75rem 1rem;
+  display: flex; flex-direction: column; gap: 0.5rem;
+}
+.message {
+  max-width: 85%; padding: 0.5rem 0.75rem; border-radius: var(--radius);
+  font-size: 0.875rem;
+}
+.message.mine { align-self: flex-end; background: #eff6ff; }
+.message.other { align-self: flex-start; background: #f3f4f6; }
+.message-meta {
+  display: flex; justify-content: space-between; gap: 0.5rem;
+  font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 0.2rem;
+}
+.message-text { white-space: pre-wrap; word-break: break-word; }
+
+.resolved-banner {
+  padding: 0.5rem 1rem; text-align: center;
+  background: #f3f4f6; color: var(--text-secondary); font-size: 0.825rem;
+  border-top: 1px solid var(--border);
+}
+
+/* Message composer */
+.message-composer {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 0.75rem;
+}
+.composer-row { display: flex; gap: 0.5rem; }
+.composer-row textarea {
+  flex: 1; resize: none; padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  font-family: inherit; font-size: 0.875rem;
+  /* Auto-grow управляется JS-кодом в MessageComposer.
+     min-height — стартовая высота, max-height — потолок: после него
+     включается внутренний скролл, чтобы поле не съело всю страницу.
+     overflow-y: auto чтобы скролл появлялся только когда нужен. */
+  min-height: 2.6em; max-height: 12em; overflow-y: auto;
+  line-height: 1.4;
+}
+.composer-row .btn { align-self: flex-end; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  display: flex; align-items: center; justify-content: center; z-index: 100;
+}
+.modal {
+  background: var(--surface); border-radius: var(--radius); padding: 1.5rem;
+  width: 100%; max-width: 440px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+.modal h2 { margin-bottom: 1rem; font-size: 1.1rem; }
+.modal label {
+  display: block; margin-bottom: 0.75rem; font-size: 0.875rem; font-weight: 500;
+}
+.modal select, .modal input[type="text"], .modal input[type="email"], .modal textarea {
+  display: block; width: 100%; margin-top: 0.25rem; padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.9rem;
+  font-family: inherit;
+}
+.modal textarea { resize: vertical; min-height: 4rem; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem; }
+
+/* ======= Navbar ======= */
+.navbar {
+  display: flex; align-items: center; gap: 1.5rem;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 0.6rem 1.5rem; position: sticky; top: 0; z-index: 50;
+}
+.navbar-brand { font-weight: 700; font-size: 1.1rem; color: var(--primary); }
+.navbar-links { display: flex; gap: 1rem; }
+.navbar-links a {
+  text-decoration: none; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500;
+}
+.navbar-links a:hover { color: var(--text); }
+.navbar-user {
+  margin-left: auto; display: flex; align-items: center; gap: 0.75rem;
+  font-size: 0.825rem; color: var(--text-secondary);
+}
+
+/* ======= Main content ======= */
+.main-content { max-width: 1280px; margin: 0 auto; padding: 1.5rem; }
+.page {}
+.page-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;
+}
+.page-header h1 { font-size: 1.4rem; }
+.subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem; }
+
+/* ======= Card grid ======= */
+.card-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1rem;
+}
+.doc-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1rem;
+}
+.doc-card-title { font-weight: 600; font-size: 1rem; margin-bottom: 0.3rem; }
+.doc-card-desc {
+  font-size: 0.85rem; color: var(--text-secondary);
+  margin-bottom: 0.75rem; overflow: hidden; text-overflow: ellipsis;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.doc-card-footer { display: flex; justify-content: space-between; align-items: center; }
+
+/* ======= Create form ======= */
+.create-form {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.5rem; max-width: 600px;
+}
+.create-form label {
+  display: block; margin-bottom: 0.75rem; font-size: 0.875rem; font-weight: 500;
+}
+.create-form input, .create-form textarea {
+  display: block; width: 100%; margin-top: 0.25rem; padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  font-family: inherit; font-size: 0.9rem;
+}
+.form-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+
+/* ======= Versions table ======= */
+.version-card-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;
+}
+.versions-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 0.75rem; }
+.versions-table th { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 2px solid var(--border); color: var(--text-secondary); font-weight: 600; }
+.versions-table td { padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--border); }
+.versions-table .current-version { background: #eff6ff; }
+/* На одну версию рендерим две <tr>: версия и подстрока с описанием изменений.
+   Убираем границу между ними, чтобы пара читалась как один блок. */
+.versions-table tr.version-main-row td { border-bottom: none; }
+.versions-table tr.version-summary-row td {
+  padding-top: 0; padding-bottom: 0.6rem;
+  font-size: 0.8rem; color: var(--text-secondary);
+}
+.versions-table tr.version-summary-row .version-summary-cell {
+  white-space: pre-wrap; word-break: break-word;
+}
+.version-summary-label { font-weight: 600; color: var(--text); margin-right: 0.3rem; }
+
+/* ======= Inline form ======= */
+.inline-form {
+  display: flex; gap: 0.5rem; align-items: flex-end; flex-wrap: wrap;
+  padding: 0.75rem; background: #f9fafb; border-radius: var(--radius);
+  margin-bottom: 0.75rem;
+}
+.inline-form input, .inline-form select {
+  padding: 0.4rem 0.6rem; border: 1px solid var(--border); border-radius: var(--radius);
+  font-size: 0.85rem;
+}
+.diff-select-label {
+  display: flex; flex-direction: column; gap: 0.2rem;
+  font-size: 0.75rem; color: var(--text-secondary); font-weight: 500;
+}
+.diff-select-label select { font-weight: normal; color: var(--text); }
+
+/* ======= Upload form ======= */
+.upload-form {
+  padding: 0.75rem; background: #f9fafb; border-radius: var(--radius);
+  margin-bottom: 0.75rem;
+}
+.upload-file-row { margin-bottom: 0.5rem; }
+.file-picker { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+.file-picker input[type="file"] { display: none; }
+.file-picker-name { font-size: 0.85rem; color: var(--text-secondary); }
+.upload-bottom-row { display: flex; gap: 0.5rem; align-items: flex-end; }
+.upload-bottom-row input {
+  flex: 1; padding: 0.4rem 0.6rem; border: 1px solid var(--border);
+  border-radius: var(--radius); font-size: 0.85rem;
+}
+.upload-summary {
+  flex: 1; padding: 0.4rem 0.6rem; border: 1px solid var(--border);
+  border-radius: var(--radius); font-size: 0.85rem;
+  font-family: inherit; line-height: 1.4; resize: none;
+  /* Auto-grow управляется JS в UploadForm. min/max ограничивают рост. */
+  min-height: 2.4em; max-height: 14em; overflow-y: auto;
+}
+
+/* ======= Discussions header ======= */
+.discussions-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;
+}
+
+/* ======= Extra button variants ======= */
+.btn-success { background: var(--success); color: #fff; }
+.btn-success:hover:not(:disabled) { background: #15803d; }
+.btn-warning { background: var(--warning); color: #fff; }
+.btn-warning:hover:not(:disabled) { background: #d97706; }
+
+/* ======= Diff ======= */
+.diff-section {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1rem; margin-top: 1rem;
+}
+.diff-section h3 { margin-bottom: 0.75rem; font-size: 1rem; }
+.diff-result { margin-top: 0.75rem; }
+.diff-images-notice {
+  padding: 0.5rem 0.75rem; background: #fef3c7; border: 1px solid #fde68a;
+  border-radius: var(--radius); color: #92400e; font-size: 0.85rem; margin-bottom: 0.75rem;
+}
+.diff-text {
+  font-family: monospace; font-size: 0.8rem; white-space: pre-wrap;
+  word-break: break-word; line-height: 1.6; padding: 0.75rem;
+  background: #f9fafb; border-radius: var(--radius); max-height: 400px; overflow-y: auto;
+}
+.diff-added { background: #d1fae5; color: #065f46; }
+.diff-removed { background: #fee2e2; color: #991b1b; text-decoration: line-through; }
+.diff-equal { color: var(--text-secondary); }
+
+/* ======= Admin Users ======= */
+.data-table {
+  width: 100%; border-collapse: collapse; background: var(--surface);
+  border-radius: var(--radius); overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.data-table th, .data-table td {
+  padding: 0.625rem 0.875rem; text-align: left; border-bottom: 1px solid var(--border);
+  font-size: 0.875rem;
+}
+.data-table th { background: #f9fafb; font-weight: 600; color: var(--text-secondary); }
+.data-table tr.row-inactive { opacity: 0.55; }
+.data-table .actions { display: flex; gap: 0.5rem; }
+.text-muted { color: var(--text-secondary); }
+
+/* ======= Form Card ======= */
+.form-card {
+  background: var(--surface); padding: 1.5rem; border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05); max-width: 480px;
+}
+.form-card label {
+  display: block; margin-bottom: 1rem; font-size: 0.875rem; font-weight: 500;
+}
+.form-card input,
+.form-card select {
+  display: block; width: 100%; margin-top: 0.25rem; padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.9rem;
+  background: white;
+}
+.form-card .hint {
+  display: block; margin-top: 0.25rem; font-size: 0.75rem;
+  color: var(--text-secondary); font-weight: normal;
+}
+.form-card button { margin-top: 0.5rem; }
+
+/* ======= Preview toolbar (above iframe) ======= */
+.preview-toolbar {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 0.75rem; margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+}
+.preview-meta { color: var(--text-secondary); }
+.preview-actions { display: flex; gap: 0.4rem; align-items: center; }
+
+/* ======= Fullscreen modal (file preview / diff) ======= */
+.fullscreen-modal {
+  position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; padding: 1rem;
+}
+.fullscreen-frame, .diff-modal {
+  background: var(--surface); border-radius: var(--radius);
+  width: 95vw; height: 92vh; max-width: 1400px;
+  display: flex; flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+.fullscreen-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.75rem 1rem; border-bottom: 1px solid var(--border);
+  background: #f9fafb;
+}
+.fullscreen-title { font-weight: 600; font-size: 0.95rem; }
+.fullscreen-close {
+  background: none; border: none; font-size: 1.5rem; cursor: pointer;
+  color: var(--text-secondary); padding: 0 0.5rem; line-height: 1;
+}
+.fullscreen-close:hover { color: var(--text); }
+.fullscreen-iframe {
+  flex: 1; width: 100%; border: none; background: white;
+}
+.diff-modal-body {
+  flex: 1; overflow: auto; padding: 1rem;
+}
+.diff-legend {
+  display: flex; gap: 1rem; font-size: 0.8rem; margin-bottom: 0.75rem;
+}
+.diff-legend-item span { padding: 0 0.4rem; border-radius: 3px; }
+.diff-text-pane {
+  font-family: 'Menlo', 'Consolas', monospace; font-size: 0.85rem;
+  white-space: pre-wrap; word-break: break-word; line-height: 1.6;
+  padding: 1rem; background: #fafafa; border-radius: var(--radius);
+  border: 1px solid var(--border); margin: 0;
+  tab-size: 4; -moz-tab-size: 4;
+}
+
+/* ======= Compliance / Rule sets ======= */
+.ruleset-list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 0.25rem;
+}
+.ruleset-list-item {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.5rem 0.75rem; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  cursor: pointer; font-size: 0.875rem;
+}
+.ruleset-list-item:hover { background: #f9fafb; }
+.ruleset-list-item.selected { background: #eff6ff; border-color: var(--primary); }
+.ruleset-list-item.inactive { opacity: 0.6; }
+.ruleset-list-name { flex: 1; font-weight: 500; }
+.ruleset-delete-btn { padding: 0.15rem 0.4rem; font-size: 0.7rem; }
+
+.ruleset-editor {
+  background: var(--surface); padding: 1rem; border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.ruleset-editor-header { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 0.5rem; }
+.ruleset-name-input {
+  flex: 1; font-size: 1.1rem; font-weight: 600;
+  border: 1px solid transparent; padding: 0.4rem 0.5rem; border-radius: var(--radius);
+  background: transparent;
+}
+.ruleset-name-input:hover, .ruleset-name-input:focus {
+  background: #f9fafb; border-color: var(--border); outline: none;
+}
+.ruleset-active-toggle { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; }
+.ruleset-desc {
+  width: 100%; min-height: 60px; resize: vertical;
+  padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);
+  font-family: inherit; font-size: 0.875rem;
+}
+.rules-list { margin-top: 1rem; }
+.rule-item {
+  background: #f9fafb; border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 0.75rem; margin-bottom: 0.5rem;
+}
+.rule-item-header { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
+.rule-name-input {
+  flex: 1; padding: 0.3rem 0.5rem; border: 1px solid transparent; background: transparent;
+  font-weight: 500; font-size: 0.9rem; border-radius: var(--radius);
+}
+.rule-name-input:hover, .rule-name-input:focus { background: var(--surface); border-color: var(--border); outline: none; }
+.rule-type-badge {
+  font-size: 0.7rem; padding: 0.15rem 0.5rem; background: #e0e7ff; color: #3730a3;
+  border-radius: 4px; font-weight: 600;
+}
+.rule-params { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.rule-params input[type="text"], .rule-params input[type="number"], .rule-params select {
+  padding: 0.35rem 0.5rem; border: 1px solid var(--border); border-radius: var(--radius);
+  font-size: 0.85rem; background: var(--surface);
+}
+.rule-params input[type="text"] { flex: 1; min-width: 200px; }
+.rule-checkbox { display: inline-flex; gap: 0.3rem; align-items: center; font-size: 0.8rem; }
+.rule-sections-list { display: flex; flex-direction: column; gap: 0.25rem; width: 100%; }
+.rule-section-row { display: flex; gap: 0.4rem; align-items: center; }
+.rule-section-row input { flex: 1; }
+.rule-section-num { font-size: 0.75rem; color: var(--text-secondary); width: 1.5rem; }
+
+/* File download card — used for docx where iframe would auto-download */
+.file-download-card {
+  padding: 1.5rem; background: #f9fafb; border: 1px dashed var(--border);
+  border-radius: var(--radius); text-align: center;
+}
+.file-download-card p { margin: 0 0 0.75rem; color: var(--text-secondary); }
+.file-download-card .btn { margin-bottom: 0.75rem; }
+.file-download-card .hint { font-size: 0.8rem; }
+
+/* Quick-add — purpose-based buttons вместо общего «+ правило» */
+.quick-add { margin-bottom: 0.75rem; }
+.quick-add-buttons {
+  display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.5rem;
+}
+.quick-add-buttons .btn { background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe; }
+.quick-add-buttons .btn:hover:not(:disabled) { background: #e0e7ff; }
+.quick-add-form {
+  background: #f9fafb; border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 0.75rem;
+}
+.quick-form-row {
+  display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;
+}
+.quick-form-row input[type="text"], .quick-form-row input[type="number"], .quick-form-row select {
+  padding: 0.4rem 0.6rem; border: 1px solid var(--border); border-radius: var(--radius);
+  font-size: 0.875rem; background: var(--surface);
+}
+.quick-form-row > input[type="text"] { flex: 1; min-width: 240px; }
+.quick-form-wide > input[type="text"] { min-width: 360px; }
+.quick-form-row input[type="number"] { width: 110px; }
+
+.compliance-results { margin-top: 1rem; }
+.compliance-summary { display: flex; gap: 0.75rem; align-items: center; }
+.compliance-location {
+  margin-top: 0.25rem; padding: 0.25rem 0.5rem; background: #fef3c7;
+  border-left: 3px solid var(--warning); font-family: monospace; font-size: 0.8rem;
+  color: #92400e;
+}
+
+/* ======= Thread version badge ======= */
+.thread-version-badge {
+  display: inline-block; padding: 0.1rem 0.4rem;
+  background: #e0e7ff; color: #3730a3; border-radius: 3px;
+  font-size: 0.7rem; font-weight: 600;
+}
+
+/* ======= Collapsible section (used on /library/:id discussion) ======= */
+.collapsible-section {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+}
+.collapsible-header {
+  width: 100%; display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.75rem 1rem; background: #f9fafb;
+  border: none; border-bottom: 1px solid transparent;
+  cursor: pointer; font-size: 0.95rem; font-weight: 600;
+  text-align: left; color: var(--text);
+}
+.collapsible-header[aria-expanded="true"] { border-bottom-color: var(--border); }
+.collapsible-header:hover { background: #f3f4f6; }
+.collapsible-arrow { font-size: 0.7rem; color: var(--text-secondary); }
+.collapsible-hint {
+  margin-left: auto; font-size: 0.75rem; font-weight: normal;
+  color: var(--text-secondary);
+}
+.collapsible-body { padding: 1rem; }
