@@ -15,11 +15,11 @@ import (
 var ErrEmptyParsedText = errors.New("version has no parsed text — cannot run compliance check")
 
 type complianceService struct {
-	docs    repository.DocumentRepository
-	vers    repository.DocumentVersionRepository
-	sets    repository.RuleSetRepository
-	checks  repository.ComplianceCheckRepository
-	engine  *compliance.Engine
+	docs   repository.DocumentRepository
+	vers   repository.DocumentVersionRepository
+	sets   repository.RuleSetRepository
+	checks repository.ComplianceCheckRepository
+	engine *compliance.Engine
 }
 
 // NewComplianceService собирает все зависимости, нужные для прогона

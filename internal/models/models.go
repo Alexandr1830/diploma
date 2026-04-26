@@ -458,15 +458,15 @@ type RuleSetWithRules struct {
 // ComplianceCheck — одно выполнение RuleSet поверх версии. Results — JSONB
 // массив RuleResult.
 type ComplianceCheck struct {
-	ID           int64     `db:"id"            json:"id"`
-	VersionID    int64     `db:"version_id"    json:"version_id"`
-	RuleSetID    int64     `db:"rule_set_id"   json:"rule_set_id"`
-	TotalRules   int       `db:"total_rules"   json:"total_rules"`
-	PassedRules  int       `db:"passed_rules"  json:"passed_rules"`
-	FailedRules  int       `db:"failed_rules"  json:"failed_rules"`
-	Results      JSONB     `db:"results"       json:"results"`
-	CreatedBy    int64     `db:"created_by"    json:"created_by"`
-	CreatedAt    time.Time `db:"created_at"    json:"created_at"`
+	ID          int64     `db:"id"            json:"id"`
+	VersionID   int64     `db:"version_id"    json:"version_id"`
+	RuleSetID   int64     `db:"rule_set_id"   json:"rule_set_id"`
+	TotalRules  int       `db:"total_rules"   json:"total_rules"`
+	PassedRules int       `db:"passed_rules"  json:"passed_rules"`
+	FailedRules int       `db:"failed_rules"  json:"failed_rules"`
+	Results     JSONB     `db:"results"       json:"results"`
+	CreatedBy   int64     `db:"created_by"    json:"created_by"`
+	CreatedAt   time.Time `db:"created_at"    json:"created_at"`
 }
 
 // RuleResult — один элемент в массиве compliance_checks.results.
@@ -497,20 +497,20 @@ type UpdateRuleSetRequest struct {
 // CreateRuleRequest — тело запроса POST /admin/rule-sets/:id/rules.
 // Params уходит в engine как есть и валидируется им же.
 type CreateRuleRequest struct {
-	Name     string          `json:"name"      binding:"required"`
-	Type     RuleType        `json:"rule_type" binding:"required"`
-	Params   map[string]any  `json:"params"    binding:"required"`
-	Severity RuleSeverity    `json:"severity"`
+	Name     string         `json:"name"      binding:"required"`
+	Type     RuleType       `json:"rule_type" binding:"required"`
+	Params   map[string]any `json:"params"    binding:"required"`
+	Severity RuleSeverity   `json:"severity"`
 }
 
 // UpdateRuleRequest — то же что CreateRuleRequest плюс position для
 // перетаскивания правил в нужный порядок.
 type UpdateRuleRequest struct {
-	Name     string          `json:"name"      binding:"required"`
-	Type     RuleType        `json:"rule_type" binding:"required"`
-	Params   map[string]any  `json:"params"    binding:"required"`
-	Severity RuleSeverity    `json:"severity"`
-	Position int             `json:"position"`
+	Name     string         `json:"name"      binding:"required"`
+	Type     RuleType       `json:"rule_type" binding:"required"`
+	Params   map[string]any `json:"params"    binding:"required"`
+	Severity RuleSeverity   `json:"severity"`
+	Position int            `json:"position"`
 }
 
 // RunComplianceRequest — тело запроса POST /documents/:id/versions/:vid/compliance.
