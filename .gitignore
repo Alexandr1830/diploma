@@ -1,0 +1,73 @@
+# Зависимости
+node_modules/
+frontend/node_modules/
+
+# Сборка
+frontend/dist/
+frontend/build/
+
+# Переменные окружения
+.env
+.env.local
+.env.*.local
+.env.example
+
+# Загруженные файлы пользователей (бинарные, не нужны в репо)
+files/
+
+# Сгенерированные превью PDF
+*.preview.pdf
+
+# IDE и системные
+.vscode/
+.idea/
+.DS_Store
+*.log
+
+# Артефакты
+mnt/
+.test_write
+*.exe
+
+# Документация — отдельной веткой потом
+*.md
+README.md
+DEVELOPMENT.md
+
+# Спецификация API
+openapi.yaml
+
+# Изображения и диаграммы
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+
+# Личные заметки, дипломный текст, тестовые данные
+*.rtf
+*.pdf
+*.docx
+*.doc
+*.xls
+*.xlsx
+*.zip
+*.tar.gz
+
+# Тестовые скрипты и данные
+test/
+tests/
+testdata/
+__tests__/
+*_test.go
+*.test.js
+*.test.jsx
+*.spec.js
+*.spec.jsx
+
+# Лок-файлы и кэши
+*.tmp
+*.cache
+.cache/
+coverage/
